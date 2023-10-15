@@ -7,17 +7,13 @@ import random
 import json
 import pickle
 
-# Suppress TensorFlow 2.x deprecation warnings (since you're using TensorFlow 1.x)
 tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.ERROR)
 
-# Initialize the Lancaster Stemmer
 stemmer = LancasterStemmer()
 
-# Load the intents data from a JSON file
 with open("intents.json") as file:
     data = json.load(file)
 
-# Try to load preprocessed data, or preprocess and save it
 try:
     with open("data.pickle", "rb") as f:
         words, labels, training, output = pickle.load(f)
@@ -27,7 +23,6 @@ except FileNotFoundError:
     docs_x = []
     docs_y = []
 
-    # Preprocess the data
     for intent in data["intents"]:
         for pattern in intent["patterns"]:
             wrds = nltk.word_tokenize(pattern)
@@ -68,11 +63,9 @@ except FileNotFoundError:
     training = np.array(training)
     output = np.array(output)
 
-    # Save the preprocessed data
     with open("data.pickle", "wb") as f:
         pickle.dump((words, labels, training, output), f)
 
-# Reset the TensorFlow default graph
 tf.compat.v1.reset_default_graph()
 
 # Create the neural network model
@@ -117,12 +110,15 @@ def chat():
 
         results = model.predict([bag_of_words(inp, words)])
         results_index = np.argmax(results)
-        tag = labels[results_index]
+        confidence = results[0][results_index]
 
-        for tg in data["intents"]:
-            if tg['tag'] == tag:
-                responses = tg['responses']
+        if confidence > 0.7:
+            tag = labels[results_index]
+            for tg in data["intents"]:
+                if tg['tag'] == tag:
+                    responses = tg['responses']
 
-        print(random.choice(responses))
-
+            print(random.choice(responses))
+        else:
+            print("I didn't understand that. Please try again.")
 chat()
