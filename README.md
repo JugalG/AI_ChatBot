@@ -8,7 +8,7 @@ Be very specific to the versions of python libraries specified below:
   numpy       : 1.16.6
   tflearn     : 0.3.2
   tensorflow  : 1.15.0
-
+  also try, will be helpful : pip install (scipy, h5py, windows-curses)
   
 Credits: 
   AI Chatbot - Tech with tim 
